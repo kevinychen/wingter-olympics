@@ -1,10 +1,17 @@
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    # Login post; redirect to home
+    $result = file_get_contents('http://nextcode.mit.edu/register');
+    header('Location: /wingter-olympics/scripts/home.php');
+}
+?>
 <html>
     <head>
         <title>Next Code 2014 Wingter Olympics</title>
     </head>
     <body>
         <div class="container">
-            <form method="post" action="/home.php">
+            <form method="post" action="/wingter-olympics/scripts/login.php">
                 <h1>Next Code 2014 Wingter Olympics</h1>
 <?php
 # Find kerberos
@@ -27,6 +34,10 @@ if (preg_match('/address: 500 Memorial Dr # ([2-5][0-7][0-9])/', $dir_output, $m
 }
 ?>
                 <p>Wing: <input type="text" name="wing" value="<?php echo $wing ?>"></p>
+                <p>Level:
+                    Normal <input type="radio" name="level" value="normal">
+                    Advanced <input type="radio" name="level" value="advanced">
+                </p>
 <?php
 # Switch to course 6
 if (strpos($dir_output, 'Electrical Eng & Computer Sci') === FALSE) {
