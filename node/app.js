@@ -39,6 +39,26 @@ app.post('/register', function(req, res) {
     res.json({'success': true});
 });
 
+// body: (username, language), files: (submission)
+app.post('/submit', function(req, res) {
+    var username = req.body.username;
+    var language = req.body.language;
+    var submission = req.body.file;
+
+    var users = firebaseRef.child('users');
+    users.once('value', function(usersSnapshot) {
+        if (usersSnapshot.hasChild(username)) {
+            var currentProblem = usersSnapshot.child('current/name').val();
+            model.grade(currentProblem, language, submission, function(success, message) {
+                console.log('Results for ' + username + ' on problem ' + currentProblem + ':');
+                console.log(success);
+                console.log(message);
+            });
+        }
+        res.json({'success': true});
+    });
+});
+
 http.createServer(app).listen(app.get('port'), function() {
     console.log('Express server listening on port ' + app.get('port'));
 });

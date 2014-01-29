@@ -1,5 +1,16 @@
 <?php
-
+require_once('util.php');
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    # Submit problem
+    $url = 'http://nextcode.mit.edu/submit';
+    $fields = array(
+        'username' => $kerberos,
+        'lang' => $_POST['lang'],
+        'file' => file_get_contents($_FILES['file']['tmp_name']),
+        'secret_token' => $secret_token,
+    );
+    do_post_request($url, $fields);
+}
 ?>
 <html>
     <head>
