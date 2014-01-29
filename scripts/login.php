@@ -1,7 +1,16 @@
 <?php
+require_once('util.php');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     # Login post; redirect to home
-    $result = file_get_contents('http://nextcode.mit.edu/register');
+    $url = 'http://nextcode.mit.edu/register';
+    $fields = array(
+        'username' => $kerberos,
+        'wing' => $_POST['wing'],
+        'level' => $_POST['level'],
+        'secret_token' => $secret_token,
+    );
+    do_post_request($url, $fields);
+
     header('Location: /wingter-olympics/scripts/home.php');
 }
 ?>
@@ -13,14 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="container">
             <form method="post" action="/wingter-olympics/scripts/login.php">
                 <h1>Next Code 2014 Wingter Olympics</h1>
-<?php
-# Find kerberos
-$kerberos = $_SERVER['SSL_CLIENT_S_DN_Email'];  # e.g. 'kyc2915@mit.edu'
-$at_index = strpos($kerberos, '@');
-if ($at_index !== FALSE) {  # the @ sign exists
-    $kerberos = substr($kerberos, 0, $at_index);  # e.g. 'kyc2915'
-}
-?>
                 <p>Username: <?php echo $kerberos ?></p>
 <?php
 # Find room number
