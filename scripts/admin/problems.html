@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <title>Next Code 2014 Wingter Olympics</title>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src='https://cdn.firebase.com/v0/firebase.js'></script>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Problems</h1>
+            <ul id="problems">
+                <li>
+                <h2>normal</h2>
+                <ul>
+                    <li>
+                    <h3>sum</h3>
+                    <h4>Description:</h4>
+                    <textarea id="normal-sum-description" class="edit"></textarea>
+                    <h4>Judge:</h4>
+                    <ul>
+                        <li>
+                        <h5>1</h5>
+                        <p>Input:</p>
+                        <textarea id="normal-sum-judge-1-input" class="edit"></textarea>
+                        <p>Output:</p>
+                        <textarea id="normal-sum-judge-1-output" class="edit"></textarea>
+                        </li>
+                    </ul>
+                    <span id="normal-sum-judge" class="add">Add</span>
+                    </li>
+                    <textarea id="newname">problem name</textarea>
+                    <span id="add">Add Problem</span>
+                </ul>
+                </li>
+            </ul>
+        </div>
+    </body>
+    <script>
+        var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
+        var problemsRef = firebaseRef.child('problems');
+        problemsRef.auth('i5QbfhtaYBIKR3bZ68pZwSfXlu4V8X3Tj1xnn3dH');
+        function load() {
+            problemsRef.once('value', function(problemsSnapshot) {
+                var problemsList = '';
+                problemsSnapshot.forEach(function(levelSnapshot) {
+                    var level = levelSnapshot.name();
+                    problemsList += '<li><h2>' + level + '</h2><ul>';
+                    levelSnapshot.forEach(function(problemSnapshot) {
+                        var problem = problemSnapshot.name();
+                        problemsList += '<li><h3>' + problem + '</h3>';
+                        problemsList += '<p>Description:</p><textarea id="' + level + '-' + problem + '-description" class="edit">' + problemSnapshot.child('description').val() + '</textarea>';
+                        problemsList += '<h4>Judge:</h4><ul>';
+                            problemSnapshot.child('judge').forEach(function(judgeSnapshot) {
+                                var judge = judgeSnapshot.name();
+                                problemsList += '<li><h5>' + judge + '</h5>';
+                                problemsList += '<p>Input:</p><textarea id="' + level + '-' + problem + '-judge-' + judge + '-input" class="edit">' + judgeSnapshot.child('input').val() + '</textarea>';
+                                problemsList += '<p>Output:</p><textarea id="' + level + '-' + problem + '-judge-' + judge + '-output" class="edit">' + judgeSnapshot.child('output').val() + '</textarea>';
+                                problemsList += '</li>';
+                            });
+                            problemsList += '<li><span id="' + level + '-' + problem + '-judge" class="add">Add</span></li></ul></li>';
+                    });
+                    problemsList += '<textarea id="' + level + '-add-name">problem name</textarea>';
+                    problemsList += '<span id="' + level + '-add" class="addp">Add Problem</span>';
+                    problemsList += '</ul></li>';
+                });
+                $('#problems').html(problemsList);
+
+                // bind the textareas to change functions
+                $('.edit').on('change', function(e) {
+                    var id = e.target.id;
+                    problemsRef.child(id.split('-').join('/')).set($('#' + id).val());
+                });
+
+                $('.add').on('click', function(e) {
+                    var id = e.target.id;
+                    var judgeRef = problemsRef.child(id.split('-').join('/'));
+                    var judgeSnapshot = problemsSnapshot.child(id.split('-').join('/'));
+                    judgeRef.child((judgeSnapshot.numChildren() + 1).toString()).set({
+                        'input': 'Problem Input',
+                        'output': 'Problem Output'
+                    });
+                    load();
+                });
+
+                $('.addp').on('click', function(e) {
+                    var id = e.target.id;
+                    var name = $('#' + id + '-name').val();
+                    problemsRef.child(id.substring(0, id.indexOf('-')) + '/' + name).set({
+                        'description': 'Problem Description'
+                    });
+                    load();
+                });
+            });
+        };
+        $(document).ready(load());
+    </script>
+</html>

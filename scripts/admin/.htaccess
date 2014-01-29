@@ -1,0 +1,3 @@
+AuthType SSLCert
+Require user kyc2915 michaelx
+ErrorDocument 401 /__scripts/needcerts
