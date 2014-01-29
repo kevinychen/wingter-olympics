@@ -1,46 +1,42 @@
 var express = require('express');
 var http = require('http');
-var passport = require('passport');
 var qs = require('querystring');
 var model = require('./model');
+var Firebase = require('firebase');
+
+const SECRET_TOKEN = 'i5QbfhtaYBIKR3bZ68pZwSfXlu4V8X3Tj1xnn3dH';
 
 var app = express();
-
-model.doTheThing();
+var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
+firebaseRef.auth(SECRET_TOKEN);
 
 app.set('port', 8080);
+app.set('view engine', 'html');
 app.use(express.bodyParser());
+app.use(function(req, res, next) {
+    console.log(req.body);
+    if (req.body.secret_token !== SECRET_TOKEN) {
+        res.json({'error': 'not authorized'});
+    } else {
+        next();
+    }
+});
 
-app.post('/', function(request, response) {
+// body: (username, wing, level)
+app.post('/register', function(req, res) {
+    var username = req.body.username;
+    var wing = req.body.wing;
+    var level = req.body.level;
 
-    console.log(request.body);
-    var string = request.body.body;
-    console.log(string);
-    var encrypted = model.encryptString(string);
-    console.log(encrypted);
-    var decrypted = model.decryptString(encrypted);
-    console.log(decrypted);
-    /*
-    var body = '';
-    request.on('data', function(data) {
-        body += data;
-        if (body.length > 1e7) {
-            // kill request
-            request.connection.destroy();
-        }
+    firebaseRef.child('users/' + username).set({
+        'wing': wing,
+        'level': level,
+    });
+    firebaseRef.child('wings/' + wing + '/users').child(username).set({
+        'score': 0,
     });
 
-    request.on('end', function() {
-        var POST = qs.parse(body);
-
-        var string = POST.body;
-        encrypted = exports.encryptString(string);
-        console.log(string);
-        console.log(encrypted);
-        // Not sure if simply ending the response is good practice
-        response.end();
-    });
-    */
+    res.json({'success': true});
 });
 
 http.createServer(app).listen(app.get('port'), function() {
