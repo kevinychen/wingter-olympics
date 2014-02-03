@@ -13,6 +13,6 @@
         "passport-local": "*",
         "bcrypt": "*",
         "request": "*",
-        "querystring": "*"
+        "querystring": "*",
     }
 }
