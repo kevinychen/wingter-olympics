@@ -1,0 +1,10 @@
+# Editor swap files
+*.swp
+*.log
+*~
+
+# Node modules
+node/node_modules
+
+# Snowman images
+scoreboard/frames
