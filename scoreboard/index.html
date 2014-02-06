@@ -1,0 +1,65 @@
+<html>
+    <head>
+        <title>Next Code 2014 Wingter Olympics</title>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src='https://cdn.firebase.com/v0/firebase.js'></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="title">
+                DO YOU WANT TO BUILD A SNOWMAN
+            </div>
+            <table class="results">
+                <tr>
+                    <td><img id="image2W" src="" width="100%"><div>2W</div><div id="score2W"></div></td>
+                    <td><img id="image2E" src="" width="100%"><div>2E</div><div id="score2E"></div></td>
+                    <td><img id="image3W" src="" width="100%"><div>3W</div><div id="score3W"></div></td>
+                    <td><img id="image3E" src="" width="100%"><div>3E</div><div id="score3E"></div></td>
+                </tr>
+                <tr>
+                    <td><img id="image4W" src="" width="100%"><div>4W</div><div id="score4W"></div></td>
+                    <td><img id="image4E" src="" width="100%"><div>4E</div><div id="score4E"></div></td>
+                    <td><img id="image5W" src="" width="100%"><div>5W</div><div id="score5W"></div></td>
+                    <td><img id="image5E" src="" width="100%"><div>5E</div><div id="score5E"></div></td>
+                </tr>
+            </table>
+        </div>
+    </body>
+    <style>
+        .title {
+            text-align: center;
+            font-size: 60px;
+            margin: 24px;
+        }
+        .results {
+            padding: 4px;
+        }
+        .results td {
+            width: 24%;
+            height: 24%;
+        }
+        .results div {
+            text-align: center;
+            font-size: 48px;
+            margin: 12px;
+        }
+    </style>
+    <script>
+        var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
+        firebaseRef.child('wings').on('value', function(wingsSnapshot) {
+            wingsSnapshot.forEach(function(wingSnapshot) {
+                var wing = wingSnapshot.name();
+                var imageEl = $('#image' + wing);
+                var scoreEl = $('#score' + wing);
+                var score = wingSnapshot.child('score').val().toString();
+                var index = score;  // make sure between 1 and 1496 inclusive
+                var currentPath = document.location.href;
+                var currentDir = currentPath.substring(0, currentPath.lastIndexOf('/'));
+                var filename = currentDir + '/frames/frame-' + ('0000' + index).slice(-5) + '.jpg';
+                imageEl.attr('src', filename);
+                scoreEl.text(score + ' POINTS');
+            });
+        });
+    </script>
+</html>
+
