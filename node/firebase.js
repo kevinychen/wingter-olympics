@@ -1,19 +1,19 @@
 var Firebase = require('firebase');
 
 // prod
-// const SECRET_TOKEN = 'i5QbfhtaYBIKR3bZ68pZwSfXlu4V8X3Tj1xnn3dH';
+const SECRET_TOKEN = 'i5QbfhtaYBIKR3bZ68pZwSfXlu4V8X3Tj1xnn3dH';
 // testing
-const SECRET_TOKEN = 'ah7RRQdV38GDyeZR6dth4nTI7c4EqSGpozy9OfWX';
+//const SECRET_TOKEN = 'ah7RRQdV38GDyeZR6dth4nTI7c4EqSGpozy9OfWX';
 
 const INITIAL_SCORE = 100;
 const NORMAL_WEIGHT = 10;
 const ADVANCED_WEIGHT = 20;
 
 // prod
-// var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
+var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
 // testing
 
-var firebaseRef = new Firebase('https://nextcode-testing.firebaseIO.com');
+//var firebaseRef = new Firebase('https://nextcode-testing.firebaseIO.com');
 firebaseRef.auth(SECRET_TOKEN);
 
 function addUser(username, wing, level, callback) {
@@ -43,16 +43,14 @@ function incSubmissionCounter(callback) {
     });
 };
 
-function findProblem(problemName, userBracket, callback) {
-
-    firebaseRef.child('problems').child(userBracket).child(problemName).once('value',
-            function(data) {
-                callback(false, data.val());
-            });
+function findProblem(problemName, callback) {
+    firebaseRef.child('problems').child(problemName).once('value', function(data) {
+        callback(false, data.val());
+    });
 }
 
-function judgeSubmission(user, problemName, userBracket, tester, callback) {
-    firebaseRef.child('problems').child(userBracket).child(problemName).
+function judgeSubmission(user, problemName, tester, callback) {
+    firebaseRef.child('problems').child(problemName).
         child('judge').once('value', function(data) {
             var counter = data.numChildren();
             var error = undefined;

@@ -74,6 +74,7 @@ function doTheJudging(judgeInput, callback, dest, language) {
 
     } else {
         callback('Not a valid programming language. Valid languages are: go, java, c/c++, and python.', true);
+        return;
     }
 
     exec(compile, function(error, stdout, stderr) {
@@ -114,7 +115,7 @@ function submitProblem(username, problemName, language, file, callback) {
     console.log(problemName);
     console.log(language);
     console.log(file);
-    firebase.findProblem(problemName, 'normal', function(err, problem) {
+    firebase.findProblem(problemName, function(err, problem) {
         if (err || !problem) {
             console.log('Error obtaining problem: ' + problemName);
             return;
@@ -127,7 +128,8 @@ function submitProblem(username, problemName, language, file, callback) {
                 }
                 //TODO: is there a file.path?
                 var fileExtension = getExtension(language);
-                var name = 's' + submissionID + '_' + username + '_' + problemName;
+                var index = ('0000' + submissionID).slice(-5);
+                var name = 's' + index + '_' + username + '_' + problemName;
                 var dest = SUBMISSION_DIRECTORY + name + '.' + fileExtension;
                 if (language === 'java') {
                     file = substituteJava(file, name);
@@ -135,7 +137,7 @@ function submitProblem(username, problemName, language, file, callback) {
                 fs.writeFile(dest, file, function(err) {
                     // TODO: using problemName directly, probably better practice to get the problem name from firebase
                     // functionally identical though, given findProblem
-                    firebase.judgeSubmission(username, problemName, 'normal', function(judgeInput, callback) {
+                    firebase.judgeSubmission(username, problemName, function(judgeInput, callback) {
                         doTheJudging(judgeInput, callback, dest, language);
                     }, function(err) {
                         console.log('returning code: ' + err);
@@ -143,10 +145,11 @@ function submitProblem(username, problemName, language, file, callback) {
                             if (err.code === 124) {
                                 err = 'Time Limit Exceeded';
                             }
-                            callback(false, err);
+                            callback(true, err);
                             return;
                         }
                         console.log('looks successful');
+                        callback(false);
                     });
                 });
             });
