@@ -50,8 +50,7 @@ function findProblem(problemName, callback) {
 }
 
 function judgeSubmission(user, problemName, tester, callback) {
-    firebaseRef.child('problems').child(problemName).
-        child('judge').once('value', function(data) {
+    firebaseRef.child('judge/' + problemName).once('value', function(data) {
             var counter = data.numChildren();
             var error = undefined;
             for (var judgeInputKey in data.val()) {

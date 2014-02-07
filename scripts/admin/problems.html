@@ -10,23 +10,23 @@
             <ul id="problems">
                 <li>
                 <h2>sum</h2>
-                <span id="sum" class="remove">Remove Problem</span>
+                <span id="problems-sum" class="remove">Remove Problem</span>
                 <h3>Description:</h3>
-                <textarea id="sum-description" class="edit"></textarea>
+                <textarea id="problems-sum-description" class="edit"></textarea>
                 <h3>Level:</h3>
-                <textarea id="sum-level" class="edit"></textarea>
+                <textarea id="problems-sum-level" class="edit"></textarea>
                 <h3>Judge:</h3>
                 <ul>
                     <li>
                     <h4>1</h4>
-                    <span id="sum-judge-1" class="remove">Remove</span>
+                    <span id="judge-sum-1" class="remove">Remove</span>
                     <p>Input:</p>
-                    <textarea id="sum-judge-1-input" class="edit"></textarea>
+                    <textarea id="judge-sum-1-input" class="edit"></textarea>
                     <p>Output:</p>
-                    <textarea id="sum-judge-1-output" class="edit"></textarea>
+                    <textarea id="judge-sum-1-output" class="edit"></textarea>
                     </li>
                 </ul>
-                <span id="sum-judge" class="add-judge">Add</span>
+                <span id="judge-sum" class="add-judge">Add</span>
                 </li>
             </ul>
             <textarea id="problem-name">problem name</textarea>
@@ -35,46 +35,47 @@
     </body>
     <script>
         var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
-        var problemsRef = firebaseRef.child('problems');
-        problemsRef.auth('i5QbfhtaYBIKR3bZ68pZwSfXlu4V8X3Tj1xnn3dH');
+        firebaseRef.auth('i5QbfhtaYBIKR3bZ68pZwSfXlu4V8X3Tj1xnn3dH');
         function load() {
-            problemsRef.once('value', function(problemsSnapshot) {
+            firebaseRef.once('value', function(firebaseSnapshot) {
+                var problemsSnapshot = firebaseSnapshot.child('problems');
+                var judgesSnapshot = firebaseSnapshot.child('judge');
                 var problemsList = '';
                 problemsSnapshot.forEach(function(problemSnapshot) {
                     var problem = problemSnapshot.name();
                     problemsList += '<li><h2>' + problem + '</h2>';
-                    problemsList += '<span id="' + problem + '" class="remove">Remove Problem</span>';
-                    problemsList += '<h3>Description:</h3><textarea id="' + problem + '-description" class="edit">' + problemSnapshot.child('description').val() + '</textarea>';
-                    problemsList += '<h3>Level:</h3><textarea id="' + problem + '-level" class="edit">' + problemSnapshot.child('level').val() + '</textarea>';
+                    problemsList += '<span id="problems-' + problem + '" class="remove">Remove Problem</span>';
+                    problemsList += '<h3>Description:</h3><textarea id="problems-' + problem + '-description" class="edit">' + problemSnapshot.child('description').val() + '</textarea>';
+                    problemsList += '<h3>Level:</h3><textarea id="problems-' + problem + '-level" class="edit">' + problemSnapshot.child('level').val() + '</textarea>';
                     problemsList += '<h3>Judge:</h3><ul>';
-                    problemSnapshot.child('judge').forEach(function(judgeSnapshot) {
+                    judgesSnapshot.child(problem).forEach(function(judgeSnapshot) {
                         var judge = judgeSnapshot.name();
                         problemsList += '<li><h4>' + judge + '</h4>';
-                        problemsList += '<span id="' + problem + '-judge-' + judge + '" class="remove">Remove</span>';
-                        problemsList += '<p>Input:</p><textarea id="' + problem + '-judge-' + judge + '-input" class="edit">' + judgeSnapshot.child('input').val() + '</textarea>';
-                        problemsList += '<p>Output:</p><textarea id="' + problem + '-judge-' + judge + '-output" class="edit">' + judgeSnapshot.child('output').val() + '</textarea>';
+                        problemsList += '<span id="judge-' + problem + '-' + judge + '" class="remove">Remove</span>';
+                        problemsList += '<p>Input:</p><textarea id="judge-' + problem + '-' + judge + '-input" class="edit">' + judgeSnapshot.child('input').val() + '</textarea>';
+                        problemsList += '<p>Output:</p><textarea id="judge-' + problem + '-' + judge + '-output" class="edit">' + judgeSnapshot.child('output').val() + '</textarea>';
                         problemsList += '</li>';
                     });
-                    problemsList += '<span id="' + problem + '-judge" class="add-judge">Add</span></li></ul>';
+                    problemsList += '<span id="judge-' + problem + '" class="add-judge">Add</span></li></ul>';
                 });
                 $('#problems').html(problemsList);
 
                 // bind the textareas to change functions
                 $('.edit').on('change', function(e) {
                     var id = e.target.id;
-                    problemsRef.child(id.split('-').join('/')).set($('#' + id).val());
+                    firebaseRef.child(id.split('-').join('/')).set($('#' + id).val());
                 });
 
                 $('.remove').on('click', function(e) {
                     var id = e.target.id;
-                    problemsRef.child(id.split('-').join('/')).remove();
+                    firebaseRef.child(id.split('-').join('/')).remove();
                     load();
                 });
 
                 $('.add-judge').on('click', function(e) {
                     var id = e.target.id;
-                    var judgeRef = problemsRef.child(id.split('-').join('/'));
-                    var judgeSnapshot = problemsSnapshot.child(id.split('-').join('/'));
+                    var judgeRef = firebaseRef.child(id.split('-').join('/'));
+                    var judgeSnapshot = firebaseSnapshot.child(id.split('-').join('/'));
                     judgeRef.child((judgeSnapshot.numChildren() + 1).toString()).set({
                         'input': 'Problem Input',
                         'output': 'Problem Output'
@@ -83,7 +84,7 @@
                 });
 
                 $('#add-problem').on('click', function(e) {
-                    problemsRef.child($('#problem-name').val()).set({
+                    firebaseRef.child('problems/' + $('#problem-name').val()).set({
                         'description': 'Problem Description',
                         'level': 'normal'
                     });
