@@ -16,32 +16,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html>
     <head>
         <title>Next Code 2014 Wingter Olympics</title>
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script src='https://cdn.firebase.com/v0/firebase.js'></script>
     </head>
     <body>
         <div class="container">
-            <div id="problem"></div>
-            <div id="description"></div>
-            <div id="upload">
-                <form method="post" action="/wingter-olympics/scripts/home.php" enctype="multipart/form-data">
-                    <p>Language:
-                        Java <input type="radio" name="lang" value="java">
-                        C++ <input type="radio" name="lang" value="c++">
-                        Python <input type="radio" name="lang" value="python">
-                    </p>
-                    <p>File: <input type="file" name="file"></p>
-                    <input type="submit" value="submit">
-                </form>
+            <h1>Problems</h1>
+                <ul id="problems">
+                    <li>
+                    <h2>sum</h2>
+                    <p>Description</p>
+                    <div id="upload">
+                        <form method="post" action="/wingter-olympics/scripts/home.php" enctype="multipart/form-data">
+                            <input type="hidden" name="problem" value="sum">
+                            <p>Language:
+                                Java <input type="radio" name="lang" value="java">
+                                C++ <input type="radio" name="lang" value="c++">
+                                Python <input type="radio" name="lang" value="python">
+                            </p>
+                            <p>File: <input type="file" name="file"></p>
+                            <input type="submit" value="submit">
+                        </form>
+                    </div>
+                    </li>
+                </ul>
             </div>
         </div>
     </body>
     <script>
         var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
-        var currentProblemRef = firebaseRef.child('wings/3W/users/kyc2915/current');
-        currentProblemRef.on('value', function(currentProblemSnapshot) {
-            $('#problem').text(currentProblemSnapshot.val().name);
-            $('#description').text(currentProblemSnapshot.val().description);
+        var problemsRef = firebaseRef.child('problems');
+        problemsRef.on('value', function(problemsSnapshot) {
+            var problemsList = '';
+            problemsSnapshot.forEach(function(problemSnapshot) {
+                var problem = problemSnapshot.name();
+                problemsList += '<li><h2>' + problem + '</h2>';
+                problemsList += '<p id="' + problem + '-description"></p>';
+                problemsList += '<div id="upload">';
+                problemsList += '<form method="post" action="/wingter-olympics/scripts/home.php" enctype="multipart/form-data">';
+                problemsList += '<input type="hidden" name="problem" value="' + problem + '">';
+                problemsList += '<p>Language:';
+                problemsList += 'Java <input type="radio" name="lang" value="java">';
+                problemsList += 'C++ <input type="radio" name="lang" value="c++">';
+                problemsList += 'Python <input type="radio" name="lang" value="python">';
+                problemsList += '<p>File: <input type="file" name="file"></p>';
+                problemsList += '<input type="submit" value="submit">';
+                problemsList += '</form></div></li>';
+            });
+            $('#problems').html(problemsList);
+            problemsSnapshot.forEach(function(problemSnapshot) {
+                var problem = problemSnapshot.name();
+                var description = problemSnapshot.child('description').val();
+                $('#' + problem + '-description').text(description);
+            });
         });
     </script>
 </html>
