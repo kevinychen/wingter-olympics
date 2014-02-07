@@ -5,6 +5,7 @@ var Firebase = require('firebase');
 // testing
 const SECRET_TOKEN = 'ah7RRQdV38GDyeZR6dth4nTI7c4EqSGpozy9OfWX';
 
+const INITIAL_SCORE = 100;
 const NORMAL_WEIGHT = 10;
 const ADVANCED_WEIGHT = 20;
 
@@ -14,6 +15,19 @@ const ADVANCED_WEIGHT = 20;
 
 var firebaseRef = new Firebase('https://nextcode-testing.firebaseIO.com');
 firebaseRef.auth(SECRET_TOKEN);
+
+function addUser(username, wing, level, callback) {
+    firebaseRef.child('users/' + username).set({
+        'wing': wing,
+        'level': 'normal'
+    });
+    firebaseRef.child('wings').once('value', function(wingsSnapshot) {
+        if (!wingsSnapshot.hasChild(wing)) {
+            wingsSnapshot.ref().child(wing).set({'score': INITIAL_SCORE});
+        }
+        callback(false);
+    });
+}
 
 function incSubmissionCounter(callback) {
     firebaseRef.child('counters').child('submissionID').transaction(function(submissionID) {
@@ -113,6 +127,7 @@ function meltScores(callback) {
     });
 }
 
+exports.addUser = addUser;
 exports.judgeSubmission = judgeSubmission
 exports.incSubmissionCounter = incSubmissionCounter
 //exports.wrongSubmission = wrongSubmission

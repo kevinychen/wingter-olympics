@@ -24,6 +24,10 @@ function timeDecay() {
 
 //setInterval(timeDecay, TIME_INTERVAL);
 
+function register(username, wing, level, callback) {
+    firebase.addUser(username, wing, level, callback);
+}
+
 function getExtension(language) {
     if (language === 'c++') {
         return 'cpp';
@@ -149,4 +153,5 @@ function submitProblem(username, problemName, language, file, callback) {
         });
 }
 
+exports.register = register;
 exports.submitProblem = submitProblem
