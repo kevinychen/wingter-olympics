@@ -33,6 +33,11 @@ function getExtension(language) {
     return language
 }
 
+function getJavaName(dest) {
+    var res = dest.split('/');
+    return res.pop();
+}
+
 function doTheJudging(judgeInput, callback, dest, language) {
     var compile = '';
     var command = '';
@@ -43,9 +48,10 @@ function doTheJudging(judgeInput, callback, dest, language) {
         console.log(compile);
 
     } else if (language === 'java') {
-        var outputFile = dest.substring(0, dest.length() - 5);
+        var outputFile = getJavaName(dest.substring(0, dest.length - 5));
         compile = 'javac ' + dest + ';';
-        command = 'echo "' + judgeInput.input + '" | timeout 3s sudo -u nobody java' + outputFile;
+        command = 'cd submissions; echo "' + judgeInput.input + '" | timeout 3s sudo -u nobody java ' + outputFile
+            + '; cd ../';
         console.log(compile);
 
     } else if (language === 'python') {
@@ -95,6 +101,10 @@ function doTheJudging(judgeInput, callback, dest, language) {
     });
 }
 
+function substituteJava(javaSource, name) {
+    return javaSource.replace(/public\s+class\s+[\w\d_]+\s*{/im,'public class ' + name + ' {');
+}
+
 function submitProblem(username, problemName, language, file, callback) {
     console.log(username);
     console.log(problemName);
@@ -113,8 +123,11 @@ function submitProblem(username, problemName, language, file, callback) {
                 }
                 //TODO: is there a file.path?
                 var fileExtension = getExtension(language);
-                var dest = SUBMISSION_DIRECTORY + 's' + submissionID + '-' + username + '-' + problemName
-                    + '.' + fileExtension;
+                var name = 's' + submissionID + '_' + username + '_' + problemName;
+                var dest = SUBMISSION_DIRECTORY + name + '.' + fileExtension;
+                if (language === 'java') {
+                    file = substituteJava(file, name);
+                }
                 fs.writeFile(dest, file, function(err) {
                     // TODO: using problemName directly, probably better practice to get the problem name from firebase
                     // functionally identical though, given findProblem
