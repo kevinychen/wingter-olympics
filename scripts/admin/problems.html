@@ -9,29 +9,28 @@
             <h1>Problems</h1>
             <ul id="problems">
                 <li>
-                <h2>normal</h2>
+                <h2>sum</h2>
+                <span id="sum" class="remove">Remove Problem</span>
+                <h3>Description:</h3>
+                <textarea id="sum-description" class="edit"></textarea>
+                <h3>Level:</h3>
+                <textarea id="sum-level" class="edit"></textarea>
+                <h3>Judge:</h3>
                 <ul>
                     <li>
-                    <h3>sum</h3>
-                    <h4>Description:</h4>
-                    <textarea id="normal-sum-description" class="edit"></textarea>
-                    <h4>Judge:</h4>
-                    <ul>
-                        <li>
-                        <h5>1</h5>
-                        <p>Input:</p>
-                        <textarea id="normal-sum-judge-1-input" class="edit"></textarea>
-                        <p>Output:</p>
-                        <textarea id="normal-sum-judge-1-output" class="edit"></textarea>
-                        </li>
-                    </ul>
-                    <span id="normal-sum-judge" class="add">Add</span>
+                    <h4>1</h4>
+                    <span id="sum-judge-1" class="remove">Remove</span>
+                    <p>Input:</p>
+                    <textarea id="sum-judge-1-input" class="edit"></textarea>
+                    <p>Output:</p>
+                    <textarea id="sum-judge-1-output" class="edit"></textarea>
                     </li>
-                    <textarea id="newname">problem name</textarea>
-                    <span id="add">Add Problem</span>
                 </ul>
+                <span id="sum-judge" class="add-judge">Add</span>
                 </li>
             </ul>
+            <textarea id="problem-name">problem name</textarea>
+            <span id="add-problem">Add Problem</span>
         </div>
     </body>
     <script>
@@ -41,26 +40,22 @@
         function load() {
             problemsRef.once('value', function(problemsSnapshot) {
                 var problemsList = '';
-                problemsSnapshot.forEach(function(levelSnapshot) {
-                    var level = levelSnapshot.name();
-                    problemsList += '<li><h2>' + level + '</h2><ul>';
-                    levelSnapshot.forEach(function(problemSnapshot) {
-                        var problem = problemSnapshot.name();
-                        problemsList += '<li><h3>' + problem + '</h3>';
-                        problemsList += '<p>Description:</p><textarea id="' + level + '-' + problem + '-description" class="edit">' + problemSnapshot.child('description').val() + '</textarea>';
-                        problemsList += '<h4>Judge:</h4><ul>';
-                            problemSnapshot.child('judge').forEach(function(judgeSnapshot) {
-                                var judge = judgeSnapshot.name();
-                                problemsList += '<li><h5>' + judge + '</h5>';
-                                problemsList += '<p>Input:</p><textarea id="' + level + '-' + problem + '-judge-' + judge + '-input" class="edit">' + judgeSnapshot.child('input').val() + '</textarea>';
-                                problemsList += '<p>Output:</p><textarea id="' + level + '-' + problem + '-judge-' + judge + '-output" class="edit">' + judgeSnapshot.child('output').val() + '</textarea>';
-                                problemsList += '</li>';
-                            });
-                            problemsList += '<li><span id="' + level + '-' + problem + '-judge" class="add">Add</span></li></ul></li>';
+                problemsSnapshot.forEach(function(problemSnapshot) {
+                    var problem = problemSnapshot.name();
+                    problemsList += '<li><h2>' + problem + '</h2>';
+                    problemsList += '<span id="' + problem + '" class="remove">Remove Problem</span>';
+                    problemsList += '<h3>Description:</h3><textarea id="' + problem + '-description" class="edit">' + problemSnapshot.child('description').val() + '</textarea>';
+                    problemsList += '<h3>Level:</h3><textarea id="' + problem + '-level" class="edit">' + problemSnapshot.child('level').val() + '</textarea>';
+                    problemsList += '<h3>Judge:</h3><ul>';
+                    problemSnapshot.child('judge').forEach(function(judgeSnapshot) {
+                        var judge = judgeSnapshot.name();
+                        problemsList += '<li><h4>' + judge + '</h4>';
+                        problemsList += '<span id="' + problem + '-judge-' + judge + '" class="remove">Remove</span>';
+                        problemsList += '<p>Input:</p><textarea id="' + problem + '-judge-' + judge + '-input" class="edit">' + judgeSnapshot.child('input').val() + '</textarea>';
+                        problemsList += '<p>Output:</p><textarea id="' + problem + '-judge-' + judge + '-output" class="edit">' + judgeSnapshot.child('output').val() + '</textarea>';
+                        problemsList += '</li>';
                     });
-                    problemsList += '<textarea id="' + level + '-add-name">problem name</textarea>';
-                    problemsList += '<span id="' + level + '-add" class="addp">Add Problem</span>';
-                    problemsList += '</ul></li>';
+                    problemsList += '<span id="' + problem + '-judge" class="add-judge">Add</span></li></ul>';
                 });
                 $('#problems').html(problemsList);
 
@@ -70,7 +65,13 @@
                     problemsRef.child(id.split('-').join('/')).set($('#' + id).val());
                 });
 
-                $('.add').on('click', function(e) {
+                $('.remove').on('click', function(e) {
+                    var id = e.target.id;
+                    problemsRef.child(id.split('-').join('/')).remove();
+                    load();
+                });
+
+                $('.add-judge').on('click', function(e) {
                     var id = e.target.id;
                     var judgeRef = problemsRef.child(id.split('-').join('/'));
                     var judgeSnapshot = problemsSnapshot.child(id.split('-').join('/'));
@@ -81,11 +82,10 @@
                     load();
                 });
 
-                $('.addp').on('click', function(e) {
-                    var id = e.target.id;
-                    var name = $('#' + id + '-name').val();
-                    problemsRef.child(id.substring(0, id.indexOf('-')) + '/' + name).set({
-                        'description': 'Problem Description'
+                $('#add-problem').on('click', function(e) {
+                    problemsRef.child($('#problem-name').val()).set({
+                        'description': 'Problem Description',
+                        'level': 'normal'
                     });
                     load();
                 });
