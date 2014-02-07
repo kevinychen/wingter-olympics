@@ -2,10 +2,11 @@
 require_once('util.php');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     # Submit problem
-    $url = 'http://nextcode.mit.edu/submit';
+    $url = 'http://nextcode.mit.edu:8080/submit';
     $fields = array(
         'username' => $kerberos,
-        'lang' => $_POST['lang'],
+        'language' => $_POST['lang'],
+        'problem' => 'sum',
         'file' => file_get_contents($_FILES['file']['tmp_name']),
         'secret_token' => $secret_token,
     );
@@ -25,9 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div id="upload">
                 <form method="post" action="/wingter-olympics/scripts/home.php" enctype="multipart/form-data">
                     <p>Language:
-                        Java <input type="radio" name="lang" value="Java">
-                        C++ <input type="radio" name="lang" value="C++">
-                        Python <input type="radio" name="lang" value="Python">
+                        Java <input type="radio" name="lang" value="java">
+                        C++ <input type="radio" name="lang" value="c++">
+                        Python <input type="radio" name="lang" value="python">
                     </p>
                     <p>File: <input type="file" name="file"></p>
                     <input type="submit" value="submit">
