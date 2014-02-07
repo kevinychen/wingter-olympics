@@ -49,8 +49,9 @@ app.post('/submit', function(req, res) {
                 console.log('Error with submission: ' + output);
             }
             model.showMessage(username, output);
-            res.json({'err': error});
         });
+
+    res.json({'err': false});
 });
 
 http.createServer(app).listen(app.get('port'), function() {

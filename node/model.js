@@ -157,7 +157,7 @@ function submitProblem(username, problemName, language, file, callback) {
 }
 
 function showMessage(username, message) {
-    firebase.showMessage(username, message);
+    firebase.showMessage(username, message.toString());
 }
 
 exports.register = register;
