@@ -149,12 +149,17 @@ function submitProblem(username, problemName, language, file, callback) {
                             return;
                         }
                         console.log('looks successful');
-                        callback(false);
+                        callback(false, 'SUCCESS!');
                     });
                 });
             });
         });
 }
 
+function showMessage(username, message) {
+    firebase.showMessage(username, message);
+}
+
 exports.register = register;
-exports.submitProblem = submitProblem
+exports.submitProblem = submitProblem;
+exports.showMessage = showMessage;

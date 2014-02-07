@@ -20,6 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <script src='https://cdn.firebase.com/v0/firebase.js'></script>
     </head>
     <body>
+        <div id="announcement"></div>
+        <div id="message"></div>
         <div class="container">
             <h1>Problems</h1>
                 <ul id="problems">
@@ -70,5 +72,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $('#' + problem + '-description').text(description);
             });
         });
+
+        // Show message.
+        firebaseRef.child('users/<?php echo $kerberos ?>/message')
+            .on('value', function(messageSnapshot) {
+                if (messageSnapshot.val()) {
+                    $('#message').text(messageSnapshot.val());
+                }
+            });
     </script>
 </html>

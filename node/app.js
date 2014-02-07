@@ -48,6 +48,7 @@ app.post('/submit', function(req, res) {
             if (error){
                 console.log('Error with submission: ' + output);
             }
+            model.showMessage(username, output);
             res.json({'err': error});
         });
 });

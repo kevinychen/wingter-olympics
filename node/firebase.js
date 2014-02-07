@@ -124,6 +124,10 @@ function meltScores(callback) {
     });
 }
 
+function showMessage(username, message) {
+    firebaseRef.child('users/' + username + '/message').set(message);
+}
+
 exports.addUser = addUser;
 exports.judgeSubmission = judgeSubmission
 exports.incSubmissionCounter = incSubmissionCounter
@@ -132,4 +136,5 @@ exports.incrementScore = incrementScore
 exports.solveProblem = solveProblem
 exports.meltScores = meltScores
 exports.findProblem = findProblem
+exports.showMessage = showMessage;
 
