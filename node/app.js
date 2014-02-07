@@ -47,8 +47,8 @@ app.post('/submit', function(req, res) {
         function(error, output) {
             if (error){
                 console.log('Error with submission: ' + output);
-                res.json({'err': error});
             }
+            res.json({'err': error});
         });
 });
 

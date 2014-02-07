@@ -101,7 +101,7 @@ function doTheJudging(judgeInput, callback, dest, language) {
                 callback(stderr, true);
                 return;
             }
-            callback(false, stdout.trim() == judgeInput.output.trim());
+            callback(false, stdout.trim() == judgeInput.output.toString().trim());
         });
     });
 }
