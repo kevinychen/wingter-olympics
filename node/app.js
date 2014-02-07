@@ -4,10 +4,16 @@ var qs = require('querystring');
 var model = require('./model');
 var Firebase = require('firebase');
 
-const SECRET_TOKEN = 'i5QbfhtaYBIKR3bZ68pZwSfXlu4V8X3Tj1xnn3dH';
-
 var app = express();
-var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
+// prod
+// const SECRET_TOKEN = 'i5QbfhtaYBIKR3bZ68pZwSfXlu4V8X3Tj1xnn3dH';
+// testing
+const SECRET_TOKEN = 'ah7RRQdV38GDyeZR6dth4nTI7c4EqSGpozy9OfWX';
+
+// prod
+// var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
+// testing
+var firebaseRef = new Firebase('https://nextcode-testing.firebaseIO.com');
 firebaseRef.auth(SECRET_TOKEN);
 
 // Assign a new problem to a user.
@@ -48,11 +54,14 @@ app.set('view engine', 'html');
 app.use(express.bodyParser());
 app.use(function(req, res, next) {
     console.log(req.body);
+    next();
+    /*
     if (req.body.secret_token !== SECRET_TOKEN) {
         res.json({'error': 'not authorized'});
     } else {
         next();
     }
+    */
 });
 
 // body: (username, wing, level)
@@ -81,20 +90,20 @@ app.post('/register', function(req, res) {
 app.post('/submit', function(req, res) {
     var username = req.body.username;
     var language = req.body.language;
+    var problemName = req.body.problem;
     var submission = req.body.file;
 
-    var users = firebaseRef.child('users');
-    users.once('value', function(usersSnapshot) {
-        if (usersSnapshot.hasChild(username)) {
-            var currentProblem = usersSnapshot.child('current/name').val();
-            model.grade(currentProblem, language, submission, function(success, message) {
-                console.log('Results for ' + username + ' on problem ' + currentProblem + ':');
-                console.log(success);
-                console.log(message);
-            });
-        }
-        res.json({'success': true});
-    });
+    console.log(username);
+    console.log(language);
+    console.log(problemName);
+    console.log(submission);
+
+    model.submitProblem(username, problemName, language, submission,
+        function(error, output) {
+            if (error){
+                console.log('Error with submission: ' + output);
+            }
+        });
 });
 
 http.createServer(app).listen(app.get('port'), function() {
