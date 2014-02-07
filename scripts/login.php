@@ -2,7 +2,7 @@
 require_once('util.php');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     # Login post; redirect to home
-    $url = 'http://nextcode.mit.edu/register';
+    $url = 'http://nextcode.mit.edu:8080/register';
     $fields = array(
         'username' => $kerberos,
         'wing' => $_POST['wing'],
