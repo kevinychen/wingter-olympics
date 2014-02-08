@@ -71,7 +71,7 @@ function judgeSubmission(user, problemName, tester, callback) {
 };
 
 // Increment the score by the given weight. score += weight
-function incrementScore(wing, weight) {
+function updateScore(userName, problemName, wing, weight, callback) {
     firebaseRef.child('wings').child(wing).child('score').transaction(function(score) {
         return score + weight;
     }, function(err, committed, data) {
@@ -80,22 +80,35 @@ function incrementScore(wing, weight) {
         } else if (!committed) {
             callback('System error: submit problem');
         } else {
-            callback(false, data.val());
+            firebaseRef.child('wings').child(wing).child('solved').child(problemName).set(userName,
+                function(error) {
+                    if (error) {
+                        console.log("Error when adding problem " + problemName 
+                            + " solved by: " + userName + ", to solved list");
+                        callback(error);
+                    } else {
+                        callback(false);
+                    }
+                });
         }
     });
 }
 
-function solveProblem(user, problem, score) {
-    firebaseRef.child('users').child(user.id)
+function solveProblem(userName, problemName, problemLevel, callback) {
+    firebaseRef.child('users').child(userName)
         .child('wing').once('value', function(data) {
             var wing = data.val();
-            if (problem.level === 'advanced') {
-                incrementScore(wing, ADVANCED_WEIGHT);
-            } else if (problem.level === 'normal') {
-                incrementScore(wing, NORMAL_WEIGHT);
+            var weight = undefined
+            if (problemLevel === 'advanced') {
+                weight = ADVANCED_WEIGHT;
+            } else if (problemLevel === 'normal') {
+                weight = NORMAL_WEIGHT;
+            }
+            if (weight) {
+                updateScore(userName, problemName, wing, weight, callback);
             } else {
                 // This shouldn't happen
-                console.log("ERROR UPDATING: " + user + ", " + problem + ", score: " + score);
+                callback("ERROR UPDATING: " + userName + ", " + problemName + ", " + wing);
             }
         });
 };
@@ -128,7 +141,7 @@ exports.addUser = addUser;
 exports.judgeSubmission = judgeSubmission
 exports.incSubmissionCounter = incSubmissionCounter
 //exports.wrongSubmission = wrongSubmission
-exports.incrementScore = incrementScore
+exports.updateScore = updateScore
 exports.solveProblem = solveProblem
 exports.meltScores = meltScores
 exports.findProblem = findProblem

@@ -149,7 +149,13 @@ function submitProblem(username, problemName, language, file, callback) {
                             return;
                         }
                         console.log('looks successful');
-                        callback(false);
+                        firebase.solveProblem(username, problemName, problem.level, function(err) {
+                            if (err) {
+                                callback(true, err);
+                            } else {
+                                callback(false);
+                            }
+                        });
                     });
                 });
             });
