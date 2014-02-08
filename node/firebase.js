@@ -8,6 +8,7 @@ const SECRET_TOKEN = 'i5QbfhtaYBIKR3bZ68pZwSfXlu4V8X3Tj1xnn3dH';
 const INITIAL_SCORE = 100;
 const NORMAL_WEIGHT = 10;
 const ADVANCED_WEIGHT = 20;
+const DECAY_CONSTANT = 1.0;
 
 // prod
 var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
@@ -122,7 +123,7 @@ function solveProblem(userName, problemName, problemLevel, callback) {
 };
 
 function computeDecay(prevScore) {
-    return Math.max(1.0, prevScore - 1.0 / Math.sqrt(prevScore));
+    return Math.max(2.0, prevScore - DECAY_CONSTANT / Math.sqrt(prevScore));
 }
 
 function meltScores(callback) {

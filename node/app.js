@@ -7,7 +7,9 @@ var app = express();
 
 app.set('port', 8080);
 app.set('view engine', 'html');
-app.use(express.bodyParser());
+app.use(express.bodyParser({
+    limit: 1024 * 1024 * 10
+}));
 app.use(function(req, res, next) {
     console.log(req.body);
     next();
