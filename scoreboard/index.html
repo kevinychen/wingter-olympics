@@ -51,8 +51,8 @@
                 var wing = wingSnapshot.name();
                 var imageEl = $('#image' + wing);
                 var scoreEl = $('#score' + wing);
-                var score = wingSnapshot.child('score').val().toString();
-                var index = score;  // make sure between 1 and 1496 inclusive
+                var score = wingSnapshot.child('score').val().toFixed(3).toString();
+                var index = Math.max(1, 1496 - parseInt(score));  // make sure between 1 and 1496 inclusive
                 var currentPath = document.location.href;
                 var currentDir = currentPath.substring(0, currentPath.lastIndexOf('/'));
                 var filename = currentDir + '/frames/frame-' + ('0000' + index).slice(-5) + '.jpg';
