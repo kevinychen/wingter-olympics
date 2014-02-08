@@ -142,28 +142,34 @@ function submitProblem(username, problemName, language, file, callback) {
                 if (language === 'java') {
                     file = substituteJava(file, name);
                 }
-                fs.writeFile(dest, file, function(err) {
-                    // TODO: using problemName directly, probably better practice to get the problem name from firebase
-                    // functionally identical though, given findProblem
-                    firebase.judgeSubmission(username, problemName, function(judgeInput, callback) {
-                        doTheJudging(judgeInput, callback, dest, language);
-                    }, function(err) {
-                        console.log('returning code: ' + err);
-                        if (err) {
-                            if (err.code === 124) {
-                                err = 'Time Limit Exceeded';
-                            }
-                            callback(true, err);
-                            return;
-                        }
-                        console.log('looks successful');
-                        // Scores updated here
-                        firebase.solveProblem(username, problemName, problem.level, function(err) {
+                firebase.checkLevel(username, problem.level, function(error) {
+                    if (error) {
+                        callback(true, error);
+                        return;
+                    }
+                    fs.writeFile(dest, file, function(err) {
+                        // TODO: using problemName directly, probably better practice to get the problem name from firebase
+                        // functionally identical though, given findProblem
+                        firebase.judgeSubmission(username, problemName, function(judgeInput, testerCallback) {
+                            doTheJudging(judgeInput, testerCallback, dest, language);
+                        }, function(err) {
+                            console.log('returning code: ' + err);
                             if (err) {
+                                if (err.code === 124) {
+                                    err = 'Time Limit Exceeded';
+                                }
                                 callback(true, err);
-                            } else {
-                                callback(false, 'SUCCESS!');
+                                return;
                             }
+                            console.log('looks successful');
+                            // Scores updated here
+                            firebase.solveProblem(username, problemName, problem.level, function(err) {
+                                if (err) {
+                                    callback(true, err);
+                                } else {
+                                    callback(false, 'SUCCESS!');
+                                }
+                            });
                         });
                     });
                 });

@@ -18,15 +18,33 @@ var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
 firebaseRef.auth(SECRET_TOKEN);
 
 function addUser(username, wing, level, callback) {
-    firebaseRef.child('users/' + username).set({
-        'wing': wing,
-        'level': 'normal'
-    });
-    firebaseRef.child('wings').once('value', function(wingsSnapshot) {
-        if (!wingsSnapshot.hasChild(wing)) {
-            wingsSnapshot.ref().child(wing).set({'score': INITIAL_SCORE});
+    firebaseRef.child('users/' + username).once('value', function(userData) {
+        var userObj = userData.val();
+        var actualLevel = userObj.level;
+        if (!actualLevel) {
+            if (!(level === 'normal' || level === 'advanced')) {
+                callback('Please choose a valid level.');
+                return;
+            }
+            actualLevel = level;
         }
-        callback(false);
+
+        // shouldn't happen
+        if (!(actualLevel === 'normal' || actualLevel === 'advanced')) {
+            callback('Invalid level, please contact contest admin.');
+            return;
+        }
+
+        firebaseRef.child('users/' + username).set({
+            'wing': wing,
+            'level': actualLevel
+        });
+        firebaseRef.child('wings').once('value', function(wingsSnapshot) {
+            if (!wingsSnapshot.hasChild(wing)) {
+                wingsSnapshot.ref().child(wing).set({'score': INITIAL_SCORE});
+            }
+            callback(false);
+        });
     });
 }
 
@@ -163,13 +181,24 @@ function checkRunning(callback) {
     });
 }
 
-exports.addUser = addUser;
+function checkLevel(userName, problemLevel, callback) {
+    firebaseRef.child('users').child(userName).child('level').once('value', function(levelData) {
+        var userLevel = levelData.val();
+        if (userLevel !== problemLevel) {
+            callback('Sorry, this problem is level: ' + problemLevel + '. Your bracket is: ' + userLevel + '.');
+        } else {
+            callback(false);
+        }
+    });
+}
+
+exports.addUser = addUser
 exports.judgeSubmission = judgeSubmission
 exports.incSubmissionCounter = incSubmissionCounter
 exports.updateScore = updateScore
 exports.solveProblem = solveProblem
 exports.meltScores = meltScores
 exports.findProblem = findProblem
-exports.showMessage = showMessage;
+exports.showMessage = showMessage
 exports.checkRunning = checkRunning
-
+exports.checkLevel = checkLevel
