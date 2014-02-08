@@ -101,7 +101,7 @@ function solveProblem(userName, problemName, problemLevel, callback) {
             firebaseRef.child('wings/' + wing).child('solved').once('value',
                 function(data) {
                     var solvedProblems = data.val();
-                    if (solvedProblems && problemName in solvedProblems) {
+                    if (solvedProblems && (problemName in solvedProblems)) {
                         callback('Problem already solved.');
                         return;
                     }
@@ -122,26 +122,32 @@ function solveProblem(userName, problemName, problemLevel, callback) {
 };
 
 function computeDecay(prevScore) {
-    return prevScore - 1.0 / Math.sqrt(prevScore);
+    return Math.max(1.0, prevScore - 1.0 / Math.sqrt(prevScore));
 }
 
 function meltScores(callback) {
-    firebaseRef.child('wings').once('value', function(data) {
-        var wings = data.val();
-        for (var wingKey in wings) {
-            firebaseRef.child('wings').child(wingKey)
-            .child('score').transaction(function(score) {
-                    return computeDecay(score);
-                }, function(err, committed, data) {
-                    if (err) {
-                        callback(err);
-                    } else if (!committed) {
-                        callback('Cannot commit decayed scores');
-                    } else {
-                        callback(false, data.val());
-                    }
-                });
+    firebaseRef.child('status').once('value', function(isRunning) {
+        if (!isRunning.val()) {
+            callback('Contest has stopped, no time decay necessary');
+            return;
         }
+        firebaseRef.child('wings').once('value', function(data) {
+            var wings = data.val();
+            for (var wingKey in wings) {
+                firebaseRef.child('wings').child(wingKey)
+            .child('score').transaction(function(score) {
+                return computeDecay(score);
+            }, function(err, committed, data) {
+                if (err) {
+                    callback(err);
+                } else if (!committed) {
+                    callback('Cannot commit decayed scores');
+                } else {
+                    callback(false, data.val());
+                }
+            });
+            }
+        });
     });
 }
 
@@ -149,13 +155,20 @@ function showMessage(username, message) {
     firebaseRef.child('users/' + username + '/message').set(message);
 }
 
+function checkRunning(callback) {
+    firebaseRef.child('status').once('value', function(data) {
+        var isRunning = data.val();
+        callback(isRunning);
+    });
+}
+
 exports.addUser = addUser;
 exports.judgeSubmission = judgeSubmission
 exports.incSubmissionCounter = incSubmissionCounter
-//exports.wrongSubmission = wrongSubmission
 exports.updateScore = updateScore
 exports.solveProblem = solveProblem
 exports.meltScores = meltScores
 exports.findProblem = findProblem
 exports.showMessage = showMessage;
+exports.checkRunning = checkRunning
 

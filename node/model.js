@@ -15,14 +15,17 @@ if (!fs.existsSync(SUBMISSION_DIRECTORY)) {
 function timeDecay() {
     firebase.meltScores(function(err, data) {
         if(err) {
-            console.log(err);
+            // this is annoying
+            if (err !== 'Contest has stopped, no time decay necessary') {
+                console.log(err);
+            }
         } else {
             // Do nothing for now
         }
     });
 }
 
-//setInterval(timeDecay, TIME_INTERVAL);
+setInterval(timeDecay, TIME_INTERVAL);
 
 function register(username, wing, level, callback) {
     firebase.addUser(username, wing, level, callback);
@@ -115,12 +118,17 @@ function submitProblem(username, problemName, language, file, callback) {
     console.log(problemName);
     console.log(language);
     console.log(file);
-    firebase.findProblem(problemName, function(err, problem) {
-        if (err || !problem) {
-            console.log('Error obtaining problem: ' + problemName);
+    firebase.checkRunning(function(isRunning) {
+        if (!isRunning) {
+            callback(true, 'Contest has stopped.');
             return;
         }
-        // Copy file
+        firebase.findProblem(problemName, function(err, problem) {
+            if (err || !problem) {
+                console.log('Error obtaining problem: ' + problemName);
+                return;
+            }
+            // Copy file
             firebase.incSubmissionCounter(function(err, submissionID) {
                 if (err) {
                     callback(true, err);
@@ -149,6 +157,7 @@ function submitProblem(username, problemName, language, file, callback) {
                             return;
                         }
                         console.log('looks successful');
+                        // Scores updated here
                         firebase.solveProblem(username, problemName, problem.level, function(err) {
                             if (err) {
                                 callback(true, err);
@@ -160,6 +169,7 @@ function submitProblem(username, problemName, language, file, callback) {
                 });
             });
         });
+    });
 }
 
 function showMessage(username, message) {
@@ -169,3 +179,4 @@ function showMessage(username, message) {
 exports.register = register;
 exports.submitProblem = submitProblem;
 exports.showMessage = showMessage;
+exports.timeDecay = timeDecay
