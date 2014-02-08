@@ -153,7 +153,7 @@ function submitProblem(username, problemName, language, file, callback) {
                             if (err) {
                                 callback(true, err);
                             } else {
-                                callback(false);
+                                callback(false, 'SUCCESS!');
                             }
                         });
                     });
@@ -162,5 +162,10 @@ function submitProblem(username, problemName, language, file, callback) {
         });
 }
 
+function showMessage(username, message) {
+    firebase.showMessage(username, message.toString());
+}
+
 exports.register = register;
-exports.submitProblem = submitProblem
+exports.submitProblem = submitProblem;
+exports.showMessage = showMessage;
