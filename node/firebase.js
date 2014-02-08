@@ -98,18 +98,26 @@ function solveProblem(userName, problemName, problemLevel, callback) {
     firebaseRef.child('users').child(userName)
         .child('wing').once('value', function(data) {
             var wing = data.val();
-            var weight = undefined
-            if (problemLevel === 'advanced') {
-                weight = ADVANCED_WEIGHT;
-            } else if (problemLevel === 'normal') {
-                weight = NORMAL_WEIGHT;
-            }
-            if (weight) {
-                updateScore(userName, problemName, wing, weight, callback);
-            } else {
-                // This shouldn't happen
-                callback("ERROR UPDATING: " + userName + ", " + problemName + ", " + wing);
-            }
+            firebaseRef.child('wings/' + wing).child('solved').once('value',
+                function(data) {
+                    var solvedProblems = data.val();
+                    if (solvedProblems && problemName in solvedProblems) {
+                        callback('Problem already solved.');
+                        return;
+                    }
+                    var weight = undefined;
+                    if (problemLevel === 'advanced') {
+                        weight = ADVANCED_WEIGHT;
+                    } else if (problemLevel === 'normal') {
+                        weight = NORMAL_WEIGHT;
+                    }
+                    if (weight) {
+                        updateScore(userName, problemName, wing, weight, callback);
+                    } else {
+                        // This shouldn't happen
+                        callback("ERROR UPDATING: " + userName + ", " + problemName + ", " + wing);
+                    }
+                });
         });
 };
 
