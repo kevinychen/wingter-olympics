@@ -142,7 +142,7 @@ function submitProblem(username, problemName, language, file, callback) {
                 if (language === 'java') {
                     file = substituteJava(file, name);
                 }
-                firebase.checkLevel(username, problem.level, function(error) {
+                firebase.setLevel(username, problem.level, function(error) {
                     if (error) {
                         callback(true, error);
                         return;

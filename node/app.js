@@ -22,13 +22,12 @@ app.use(function(req, res, next) {
     */
 });
 
-// body: (username, wing, level)
+// body: (username, wing)
 app.post('/register', function(req, res) {
     var username = req.body.username;
     var wing = req.body.wing;
-    var level = req.body.level;
 
-    model.register(username, wing, level, function(err) {
+    model.register(username, wing, function(err) {
         res.json({'err': err});
     });
 });
