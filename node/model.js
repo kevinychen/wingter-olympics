@@ -17,7 +17,7 @@ function timeDecay() {
         if(err) {
             // this is annoying
             if (err !== 'Contest has stopped, no time decay necessary') {
-                console.log(err);
+                console.log('Error while decaying scores: ' + err);
             }
         } else {
             // Do nothing for now
@@ -52,28 +52,23 @@ function doTheJudging(judgeInput, callback, dest, language) {
         var outputFile = dest + '.o';
         compile = 'g++ -o ' + outputFile + ' ' + dest + ';';
         command = 'echo "' + judgeInput.input + '" | timeout 3s sudo -u nobody ./' + outputFile;
-        console.log(compile);
 
     } else if (language === 'java') {
         var outputFile = getJavaName(dest.substring(0, dest.length - 5));
         compile = 'javac ' + dest + ';';
         command = 'cd submissions; echo "' + judgeInput.input + '" | timeout 3s sudo -u nobody java ' + outputFile
             + '; cd ../';
-        console.log(compile);
 
     } else if (language === 'python') {
         command = 'echo "' + judgeInput.input + '" | timeout 3s sudo -u nobody python ' + dest;
-        console.log(command);
 
     } else if (language === 'go') {
         command = 'echo "' + judgeInput.input + '" | timeout 3s sudo -u nobody go run ' + dest;
-        console.log(command);
 
     } else if (language === 'c') {
         var outputFile = dest + '.o';
         compile = 'gcc -o ' + outputFile + ' ' + dest + ';';
         command = 'echo "' + judgeInput.input + '" | timeout 3s sudo -u nobody ./' + outputFile;
-        console.log(compile);
 
     } else {
         callback('Not a valid programming language. Valid languages are: go, java, c/c++, and python.', true);
@@ -81,26 +76,26 @@ function doTheJudging(judgeInput, callback, dest, language) {
     }
 
     exec(compile, function(error, stdout, stderr) {
-        console.log("COMPILING");
+        console.log("compiling ... ");
         if (error) {
             console.log("error: " + error);
             callback(error, true);
             return;
         }
         if (stderr) {
-            console.log("stderr");
+            console.log("stderr: " + stderr);
             callback(stderr, true);
             return;
         }
         exec(command, function(error, stdout, stderr) {
-            console.log("RUNNING");
+            console.log("running ...");
             if (error) {
                 console.log("error: " + error);
                 callback(error, true);
                 return;
             }
             if (stderr) {
-                console.log("stderr");
+                console.log("stderr: " + stderr);
                 callback(stderr, true);
                 return;
             }
@@ -114,10 +109,11 @@ function substituteJava(javaSource, name) {
 }
 
 function submitProblem(username, problemName, language, file, callback) {
-    console.log(username);
-    console.log(problemName);
-    console.log(language);
-    console.log(file);
+    console.log('------------- New Submission --------------');
+    console.log('username: ' + username);
+    console.log('problem: ' + problemName);
+    console.log('language: ' + language);
+    console.log('source: ' + file);
     firebase.checkRunning(function(isRunning) {
         if (!isRunning) {
             callback(true, 'Contest has stopped.');
@@ -161,7 +157,7 @@ function submitProblem(username, problemName, language, file, callback) {
                                 callback(true, err);
                                 return;
                             }
-                            console.log('looks successful');
+                            console.log('Successful submission.');
                             // Scores updated here
                             firebase.solveProblem(username, problemName, problem.level, function(err) {
                                 if (err) {
