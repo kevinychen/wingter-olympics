@@ -18,6 +18,10 @@ var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
 firebaseRef.auth(SECRET_TOKEN);
 
 function addUser(username, wing, callback) {
+    if (!wing.match(/^[\w\d]+$/i)) {
+       callback('Invalid wing, only alphanumeric characters permitted');
+       return;
+    }
 
     firebaseRef.child('users/' + username).set({
         'wing': wing,
