@@ -6,7 +6,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fields = array(
         'username' => $kerberos,
         'wing' => $_POST['wing'],
-        'level' => $_POST['level'],
         'secret_token' => $secret_token,
     );
     do_post_request($url, $fields);
@@ -35,10 +34,6 @@ if (preg_match('/address: 500 Memorial Dr # ([2-5][0-7][0-9])/', $dir_output, $m
 }
 ?>
                 <p>Wing: <input type="text" name="wing" value="<?php echo $wing ?>"></p>
-                <p>Level:
-                    Normal <input type="radio" name="level" value="normal">
-                    Advanced <input type="radio" name="level" value="advanced">
-                </p>
 <?php
 # Switch to course 6
 if (strpos($dir_output, 'Electrical Eng & Computer Sci') === FALSE) {

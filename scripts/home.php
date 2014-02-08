@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fields = array(
         'username' => $kerberos,
         'language' => $_POST['lang'],
-        'problem' => 'sum',
+        'problem' => $_POST['problem'],
         'file' => file_get_contents($_FILES['file']['tmp_name']),
         'secret_token' => $secret_token,
     );
@@ -20,6 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <script src='https://cdn.firebase.com/v0/firebase.js'></script>
     </head>
     <body>
+        <div id="title"></div>
         <div id="announcement"></div>
         <div id="message"></div>
         <div class="container">
@@ -73,12 +74,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             });
         });
 
-        // Show message.
-        firebaseRef.child('users/<?php echo $kerberos ?>/message')
-            .on('value', function(messageSnapshot) {
-                if (messageSnapshot.val()) {
-                    $('#message').text(messageSnapshot.val());
-                }
-            });
+        // Show user stats and message
+        firebaseRef.child('users/<?php echo $kerberos ?>').on('value', function(userSnapshot) {
+            var stats = '<b>User: <?php echo $kerberos ?> Wing: ' + userSnapshot.child('wing').val();
+            if (userSnapshot.hasChild('level')) {
+                stats += ' Level: ' + userSnapshot.child('level').val();
+            }
+            stats += '</b>';
+            $('#title').html(stats);
+            if (userSnapshot.hasChild('message')) {
+                $('#message').text(userSnapshot.child('message').val());
+            }
+        });
     </script>
 </html>
