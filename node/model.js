@@ -178,7 +178,14 @@ function showMessage(username, message) {
     firebase.showMessage(username, message.toString());
 }
 
+function checkTimestamp(username, currTime, callback) {
+    // Check if previous submission is too soon
+    // Then sets the most recent submission time to this time
+    firebase.checkTimestamp(username, currTime, callback);
+}
+
 exports.register = register;
 exports.submitProblem = submitProblem;
 exports.showMessage = showMessage;
+exports.checkTimestamp = checkTimestamp;
 exports.timeDecay = timeDecay

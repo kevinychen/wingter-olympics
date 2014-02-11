@@ -9,6 +9,7 @@ const INITIAL_SCORE = 100;
 const NORMAL_WEIGHT = 10;
 const ADVANCED_WEIGHT = 20;
 const DECAY_CONSTANT = 1.0;
+const SUBMISSION_WAIT_TIME = 30000;  // min ms between submissions
 
 // prod
 var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
@@ -161,6 +162,19 @@ function showMessage(username, message) {
     firebaseRef.child('users/' + username + '/message').set(message);
 }
 
+function checkTimestamp(username, currTime, callback) {
+    lastSubmitTimeRef = firebaseRef.child(
+            'users/' + username + '/lastSubmitTime');
+    lastSubmitTimeRef.once('value', function(lastSubmitTimeSnapshot) {
+        var tooSoon = lastSubmitTimeSnapshot.val() >
+            currTime - SUBMISSION_WAIT_TIME;
+        if (!tooSoon) {
+            lastSubmitTimeRef.set(currTime);
+        }
+        callback(tooSoon);
+    });
+}
+
 function checkRunning(callback) {
     firebaseRef.child('status').once('value', function(data) {
         var isRunning = data.val();
@@ -190,5 +204,6 @@ exports.solveProblem = solveProblem
 exports.meltScores = meltScores
 exports.findProblem = findProblem
 exports.showMessage = showMessage
+exports.checkTimestamp = checkTimestamp
 exports.checkRunning = checkRunning
 exports.setLevel = setLevel
