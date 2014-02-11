@@ -110,11 +110,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         problemsList += '<pre id="' + problem + '-description"></pre>';
                         problemsList += '<div>';
                         problemsList += '<p>';
-                        problemsList += 'Java <input type="radio" name="lang-' + problem + '" value="java">';
-                        problemsList += 'C++ <input type="radio" name="lang-' + problem + '" value="c++">';
-                        problemsList += 'C <input type="radio" name="lang-' + problem + '" value="c">';
-                        problemsList += 'Python <input type="radio" name="lang-' + problem + '" value="python">';
-                        problemsList += 'Go <input type="radio" name="lang-' + problem + '" value="go">';
+                        problemsList += 'Java: <input type="radio" name="lang-' + problem + '" value="java">';
+                        problemsList += 'C++: <input type="radio" name="lang-' + problem + '" value="c++">';
+                        problemsList += 'C: <input type="radio" name="lang-' + problem + '" value="c">';
+                        problemsList += 'Python: <input type="radio" name="lang-' + problem + '" value="python">';
+                        problemsList += 'Go: <input type="radio" name="lang-' + problem + '" value="go">';
                         problemsList += '</p>';
                         problemsList += '<p>File: <input type="file" id="file-' + problem + '"></p>';
                         problemsList += '<button type="button" id="submit-' + problem + '" class="submit-problem">Submit</button>';
