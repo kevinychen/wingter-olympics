@@ -20,40 +20,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <script src='https://cdn.firebase.com/v0/firebase.js'></script>
     </head>
     <body>
-        <div id="title"></div>
-        <div id="announcement"></div>
-        <div id="message"></div>
+        <div class="banner">
+            <div id="title"></div>
+            <div id="announcement"></div>
+            <div id="message"></div>
+        </div>
+        <div class="sidebar">
+            <h1>PROBLEMS</h1>
+            <ul id="list">
+            </ul>
+        </div>
         <div class="container">
-            <h1>Problems</h1>
-                <ul id="problems">
-                    <li>
-                    <h2>sum</h2>
-                    <p>Description</p>
-                    <div id="upload">
-                        <form method="post" action="/wingter-olympics/scripts/home.php" enctype="multipart/form-data">
-                            <input type="hidden" name="problem" value="sum">
-                            <p>Language:
-                                Java <input type="radio" name="lang" value="java">
-                                C++ <input type="radio" name="lang" value="c++">
-                                Python <input type="radio" name="lang" value="python">
-                            </p>
-                            <p>File: <input type="file" name="file"></p>
-                            <input type="submit" value="submit">
-                        </form>
-                    </div>
-                    </li>
-                </ul>
-            </div>
+            <ul id="problems">
+                <li>
+                <h2>sum</h2>
+                <p>Description</p>
+                <div id="upload">
+                    <form method="post" action="/wingter-olympics/scripts/home.php" enctype="multipart/form-data">
+                        <input type="hidden" name="problem" value="sum">
+                        <p>Language:
+                            Java <input type="radio" name="lang" value="java">
+                            C++ <input type="radio" name="lang" value="c++">
+                            Python <input type="radio" name="lang" value="python">
+                        </p>
+                        <p>File: <input type="file" name="file"></p>
+                        <input type="submit" value="submit">
+                    </form>
+                </div>
+                </li>
+            </ul>
         </div>
     </body>
     <script>
         var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
         var problemsRef = firebaseRef.child('problems');
         problemsRef.on('value', function(problemsSnapshot) {
+            var sidebarList = '';
             var problemsList = '';
             problemsSnapshot.forEach(function(problemSnapshot) {
                 var problem = problemSnapshot.name();
-                problemsList += '<li><h2>' + problem + '</h2>';
+                var level = problemSnapshot.child('level').val();
+                sidebarList += '<li><a href="#gotoproblem-' + problem + '">' + problem + '</a> (' + level + ')</li>';
+                problemsList += '<li><a name="gotoproblem-' + problem + '"></a><div class="blank"></div><h2>' + problem + '</h2>';
+                problemsList += '<h3>' + level + '</h3>';
                 problemsList += '<pre id="' + problem + '-description"></pre>';
                 problemsList += '<div id="upload">';
                 problemsList += '<form method="post" action="/wingter-olympics/scripts/home.php" enctype="multipart/form-data">';
@@ -66,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 problemsList += '<input type="submit" value="submit">';
                 problemsList += '</form></div></li>';
             });
+            $('#list').html(sidebarList);
             $('#problems').html(problemsList);
             problemsSnapshot.forEach(function(problemSnapshot) {
                 var problem = problemSnapshot.name();
@@ -87,4 +97,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         });
     </script>
+    <style>
+         .banner {
+             position: fixed;
+             background: white;
+         }
+         .sidebar {
+             position: fixed;
+             top: 50px;
+         }
+         .container {
+             margin-left: 250px;
+         }
+         .blank {
+             min-height: 50px;
+         }
+    </style>
 </html>
