@@ -113,7 +113,7 @@ function submitProblem(username, problemName, language, file, callback) {
     console.log('username: ' + username);
     console.log('problem: ' + problemName);
     console.log('language: ' + language);
-    console.log('source: ' + file);
+//    console.log('source: ' + file);
     firebase.checkRunning(function(isRunning) {
         if (!isRunning) {
             callback(true, 'Contest has stopped.');
