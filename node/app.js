@@ -11,7 +11,6 @@ app.use(express.bodyParser({
     limit: 1024 * 1024 * 10
 }));
 app.use(function(req, res, next) {
-    console.log(req.body);
     if (req.body.secret_token !== 'i5QbfhtaYBIKR3bZ68pZwSfXlu4V8X3Tj1xnn3dH') {
         res.json({'error': 'not authorized'});
     } else {
