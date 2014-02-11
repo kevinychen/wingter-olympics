@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             problemsSnapshot.forEach(function(problemSnapshot) {
                 var problem = problemSnapshot.name();
                 problemsList += '<li><h2>' + problem + '</h2>';
-                problemsList += '<p id="' + problem + '-description"></p>';
+                problemsList += '<pre id="' + problem + '-description"></pre>';
                 problemsList += '<div id="upload">';
                 problemsList += '<form method="post" action="/wingter-olympics/scripts/home.php" enctype="multipart/form-data">';
                 problemsList += '<input type="hidden" name="problem" value="' + problem + '">';
