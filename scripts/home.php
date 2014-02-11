@@ -58,19 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
         var problemsRef = firebaseRef.child('problems');
         sortFunc = function(a, b) {
-            var aVal = 0;
-            var bVal = 0;
-            if (a.val().level === 'normal') {
-                aVal = -1;
-            } else {
-                aVal = 1;
-            }
-            if (b.val().level === 'normal') {
-                bVal = -1;
-            } else {
-                bVal = 1;
-            }
-            return aVal - bVal;
+            var aVal = a.val().level === 'normal';
+            var bVal = b.val().level === 'normal';
+            if (aVal != bVal)
+                return aVal ? 1 : -1;
+            else
+                return a.name() > b.name() ? 1 : -1;
         }
         firebaseRef.child('users/<?php echo $kerberos ?>').on('value', function(userSnapshot) {
             var wing = userSnapshot.child('wing').val();
