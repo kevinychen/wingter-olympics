@@ -12,14 +12,11 @@ app.use(express.bodyParser({
 }));
 app.use(function(req, res, next) {
     console.log(req.body);
-    next();
-    /*
-    if (req.body.secret_token !== SECRET_TOKEN) {
+    if (req.body.secret_token !== 'i5QbfhtaYBIKR3bZ68pZwSfXlu4V8X3Tj1xnn3dH') {
         res.json({'error': 'not authorized'});
     } else {
         next();
     }
-    */
 });
 
 // body: (username, wing)
@@ -49,7 +46,7 @@ app.post('/submit', function(req, res) {
             if (error){
                 console.log('Error with submission: ' + output);
             }
-            model.showMessage(username, output);
+            model.showMessage(username, 'Problem ' + problemName + ': ' + output);
         });
 
     res.json({'err': false});
