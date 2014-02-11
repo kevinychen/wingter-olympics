@@ -41,6 +41,7 @@ app.post('/submit', function(req, res) {
     console.log(problemName);
     console.log(submission);
 
+    model.showMessage(username, 'Problem ' + problemName + ': grading...');
     model.submitProblem(username, problemName, language, submission,
         function(error, output) {
             if (error){
