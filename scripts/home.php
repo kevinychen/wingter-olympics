@@ -163,6 +163,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
          .sidebar {
              position: fixed;
              top: 50px;
+             font-size:15px;
          }
          .container {
              margin-left: 250px;
