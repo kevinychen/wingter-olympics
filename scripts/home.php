@@ -177,5 +177,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
          .blank {
              min-height: 50px;
          }
+         input {
+             margin-right: 20px;
+         }
     </style>
 </html>
