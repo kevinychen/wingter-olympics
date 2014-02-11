@@ -34,18 +34,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <ul id="problems">
                 <li>
                 <h2>sum</h2>
-                <p>Description</p>
-                <div id="upload">
-                    <form method="post" action="/wingter-olympics/scripts/home.php" enctype="multipart/form-data">
-                        <input type="hidden" name="problem" value="sum">
-                        <p>Language:
-                            Java <input type="radio" name="lang" value="java">
-                            C++ <input type="radio" name="lang" value="c++">
-                            Python <input type="radio" name="lang" value="python">
-                        </p>
-                        <p>File: <input type="file" name="file"></p>
-                        <input type="submit" value="submit">
-                    </form>
+                <h3>normal</h3>
+                <pre>Description</pre>
+                <div>
+                    <p>Language:
+                        Java <input type="radio" name="lang-sum" value="java">
+                        C++ <input type="radio" name="lang-sum" value="c++">
+                        Python <input type="radio" name="lang-sum" value="python">
+                    </p>
+                    <p>File: <input type="file" id="file-sum"></p>
+                    <button type="button" id="submit-sum" class="submit-problem">Submit</button>
                 </div>
                 </li>
             </ul>
@@ -64,16 +62,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 problemsList += '<li><a name="gotoproblem-' + problem + '"></a><div class="blank"></div><h2>' + problem + '</h2>';
                 problemsList += '<h3>' + level + '</h3>';
                 problemsList += '<pre id="' + problem + '-description"></pre>';
-                problemsList += '<div id="upload">';
-                problemsList += '<form method="post" action="/wingter-olympics/scripts/home.php" enctype="multipart/form-data">';
-                problemsList += '<input type="hidden" name="problem" value="' + problem + '">';
+                problemsList += '<div>';
                 problemsList += '<p>Language:';
-                problemsList += 'Java <input type="radio" name="lang" value="java">';
-                problemsList += 'C++ <input type="radio" name="lang" value="c++">';
-                problemsList += 'Python <input type="radio" name="lang" value="python">';
-                problemsList += '<p>File: <input type="file" name="file"></p>';
-                problemsList += '<input type="submit" value="submit">';
-                problemsList += '</form></div></li>';
+                problemsList += 'Java <input type="radio" name="lang-' + problem + '" value="java">';
+                problemsList += 'C++ <input type="radio" name="lang-' + problem + '" value="c++">';
+                problemsList += 'Python <input type="radio" name="lang-' + problem + '" value="python">';
+                problemsList += '</p>';
+                problemsList += '<p>File: <input type="file" id="file-' + problem + '"></p>';
+                problemsList += '<button type="button" id="submit-' + problem + '" class="submit-problem">Submit</button>';
+                problemsList += '</div></li>';
             });
             $('#list').html(sidebarList);
             $('#problems').html(problemsList);
@@ -81,6 +78,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 var problem = problemSnapshot.name();
                 var description = problemSnapshot.child('description').val();
                 $('#' + problem + '-description').text(description);
+            });
+
+            $('.submit-problem').on('click', function(e) {
+                var id = e.target.id;
+                var problem = id.substring('submit-'.length);
+                var fd = new FormData();
+                fd.append('file', $('#file-' + problem)[0].files[0]);
+                var selected = $('input[type="radio"][name="lang-' + problem + '"]:checked');
+                var selectedVal = '';
+                if (selected.length > 0) {
+                    selectedVal = selected.val();
+                }
+                fd.append('lang', selectedVal);
+                fd.append('problem', problem);
+                var xhr = new XMLHttpRequest();
+                xhr.open('post', 'home.php', true);
+                xhr.send(fd);
             });
         });
 
@@ -96,6 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $('#message').text(userSnapshot.child('message').val());
             }
         });
+
     </script>
     <style>
          .banner {
