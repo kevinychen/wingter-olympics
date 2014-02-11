@@ -27,7 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="sidebar">
             <h1>PROBLEMS</h1>
+            <h3>Normal</h3>
             <ul id="list">
+            </ul>
+            <hr>
+            <h3>Advanced</h3>
+            <ul id="listAdv">
             </ul>
         </div>
         <div class="container">
@@ -76,6 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 problemsRef.on('value', function(problemsSnapshot) {
                     var sidebarList = '';
+                    var sidebarListAdv = '';
                     var problemsList = '';
                     var problems = [];
                     problemsSnapshot.forEach(function(problemSnapshot) {
@@ -86,12 +92,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     problems.forEach(function(problemSnapshot) {
                         var problem = problemSnapshot.name();
                         var level = problemSnapshot.child('level').val();
+                        var element = ''
                         if (problem in solvedProblems) {
                             var solver = solvedProblems[problem]
-                            sidebarList += '<li>&#x2713<a href="#gotoproblem-' + problem + '">' + problem + '</a> (' + level + ')' + ' by: ' + solver + '</li>';
+                            element = '<li>&#x2713<a href="#gotoproblem-' + problem + '">' + problem + '</a> | ' + solver + '</li>';
                         } else {
-                            sidebarList += '<li><a href="#gotoproblem-' + problem + '">' + problem + '</a> (' + level + ')</li>';
+                            element = '<li><a href="#gotoproblem-' + problem + '">' + problem + '</a></li>';
                         }
+                        if (level === 'advanced') {
+                            sidebarListAdv += element;
+                        } else {
+                            sidebarList += element;
+                        }
+
                         problemsList += '<li><a name="gotoproblem-' + problem + '"></a><div class="blank"></div><h2>' + problem + '</h2>';
                         problemsList += '<h3>' + level + '</h3>';
                         problemsList += '<pre id="' + problem + '-description"></pre>';
@@ -106,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         problemsList += '</div></li>';
                     });
                     $('#list').html(sidebarList);
+                    $('#listAdv').html(sidebarListAdv);
                     $('#problems').html(problemsList);
                     problemsSnapshot.forEach(function(problemSnapshot) {
                         var problem = problemSnapshot.name();
