@@ -52,49 +52,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script>
         var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
         var problemsRef = firebaseRef.child('problems');
-        problemsRef.on('value', function(problemsSnapshot) {
-            var sidebarList = '';
-            var problemsList = '';
-            problemsSnapshot.forEach(function(problemSnapshot) {
-                var problem = problemSnapshot.name();
-                var level = problemSnapshot.child('level').val();
-                sidebarList += '<li><a href="#gotoproblem-' + problem + '">' + problem + '</a> (' + level + ')</li>';
-                problemsList += '<li><a name="gotoproblem-' + problem + '"></a><div class="blank"></div><h2>' + problem + '</h2>';
-                problemsList += '<h3>' + level + '</h3>';
-                problemsList += '<pre id="' + problem + '-description"></pre>';
-                problemsList += '<div>';
-                problemsList += '<p>Language:';
-                problemsList += 'Java <input type="radio" name="lang-' + problem + '" value="java">';
-                problemsList += 'C++ <input type="radio" name="lang-' + problem + '" value="c++">';
-                problemsList += 'Python <input type="radio" name="lang-' + problem + '" value="python">';
-                problemsList += '</p>';
-                problemsList += '<p>File: <input type="file" id="file-' + problem + '"></p>';
-                problemsList += '<button type="button" id="submit-' + problem + '" class="submit-problem">Submit</button>';
-                problemsList += '</div></li>';
-            });
-            $('#list').html(sidebarList);
-            $('#problems').html(problemsList);
-            problemsSnapshot.forEach(function(problemSnapshot) {
-                var problem = problemSnapshot.name();
-                var description = problemSnapshot.child('description').val();
-                $('#' + problem + '-description').text(description);
-            });
-
-            $('.submit-problem').on('click', function(e) {
-                var id = e.target.id;
-                var problem = id.substring('submit-'.length);
-                var fd = new FormData();
-                fd.append('file', $('#file-' + problem)[0].files[0]);
-                var selected = $('input[type="radio"][name="lang-' + problem + '"]:checked');
-                var selectedVal = '';
-                if (selected.length > 0) {
-                    selectedVal = selected.val();
+        sortFunc = function(a, b) {
+            var aVal = 0;
+            var bVal = 0;
+            if (a.val().level === 'normal') {
+                aVal = -1;
+            } else {
+                aVal = 1;
+            }
+            if (b.val().level === 'normal') {
+                bVal = -1;
+            } else {
+                bVal = 1;
+            }
+            return aVal - bVal;
+        }
+        firebaseRef.child('users/<?php echo $kerberos ?>').on('value', function(userSnapshot) {
+            var wing = userSnapshot.child('wing').val();
+            firebaseRef.child('wings/' + wing).on('value', function(wingSnapshot) {
+                var solvedProblems = {};
+                if (wingSnapshot.hasChild('solved')) {
+                    solvedProblems = wingSnapshot.child('solved').val();
                 }
-                fd.append('lang', selectedVal);
-                fd.append('problem', problem);
-                var xhr = new XMLHttpRequest();
-                xhr.open('post', 'home.php', true);
-                xhr.send(fd);
+                problemsRef.on('value', function(problemsSnapshot) {
+                    var sidebarList = '';
+                    var problemsList = '';
+                    var problems = [];
+                    problemsSnapshot.forEach(function(problemSnapshot) {
+                        problems.push(problemSnapshot);
+                    });
+                    problems.sort(sortFunc);
+
+                    problems.forEach(function(problemSnapshot) {
+                        var problem = problemSnapshot.name();
+                        var level = problemSnapshot.child('level').val();
+                        if (problem in solvedProblems) {
+                            var solver = solvedProblems[problem]
+                            sidebarList += '<li>&#x2713<a href="#gotoproblem-' + problem + '">' + problem + '</a> (' + level + ')' + ' by: ' + solver + '</li>';
+                        } else {
+                            sidebarList += '<li><a href="#gotoproblem-' + problem + '">' + problem + '</a> (' + level + ')</li>';
+                        }
+                        problemsList += '<li><a name="gotoproblem-' + problem + '"></a><div class="blank"></div><h2>' + problem + '</h2>';
+                        problemsList += '<h3>' + level + '</h3>';
+                        problemsList += '<pre id="' + problem + '-description"></pre>';
+                        problemsList += '<div>';
+                        problemsList += '<p>Language:';
+                        problemsList += 'Java <input type="radio" name="lang-' + problem + '" value="java">';
+                        problemsList += 'C++ <input type="radio" name="lang-' + problem + '" value="c++">';
+                        problemsList += 'Python <input type="radio" name="lang-' + problem + '" value="python">';
+                        problemsList += '</p>';
+                        problemsList += '<p>File: <input type="file" id="file-' + problem + '"></p>';
+                        problemsList += '<button type="button" id="submit-' + problem + '" class="submit-problem">Submit</button>';
+                        problemsList += '</div></li>';
+                    });
+                    $('#list').html(sidebarList);
+                    $('#problems').html(problemsList);
+                    problemsSnapshot.forEach(function(problemSnapshot) {
+                        var problem = problemSnapshot.name();
+                        var description = problemSnapshot.child('description').val();
+                        $('#' + problem + '-description').text(description);
+                    });
+
+                    $('.submit-problem').on('click', function(e) {
+                        var id = e.target.id;
+                        var problem = id.substring('submit-'.length);
+                        var fd = new FormData();
+                        fd.append('file', $('#file-' + problem)[0].files[0]);
+                        var selected = $('input[type="radio"][name="lang-' + problem + '"]:checked');
+                        var selectedVal = '';
+                        if (selected.length > 0) {
+                            selectedVal = selected.val();
+                        }
+                        fd.append('lang', selectedVal);
+                        fd.append('problem', problem);
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('post', 'home.php', true);
+                        xhr.send(fd);
+                    });
+                });
             });
         });
 
@@ -110,7 +145,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $('#message').text(userSnapshot.child('message').val());
             }
         });
-
     </script>
     <style>
          .banner {
