@@ -41,14 +41,22 @@ app.post('/submit', function(req, res) {
     console.log(problemName);
     console.log(submission);
 
-    model.showMessage(username, 'Problem ' + problemName + ': grading...');
-    model.submitProblem(username, problemName, language, submission,
-        function(error, output) {
-            if (error){
-                console.log('Error with submission: ' + output);
-            }
-            model.showMessage(username, 'Problem ' + problemName + ': ' + output);
-        });
+    model.checkTimestamp(username, new Date().getTime(), function(tooSoon) {
+        if (tooSoon) {
+            model.showMessage(username, 'You must wait at least 30 seconds between submissions.');
+        } else {
+            model.showMessage(username, 'Problem ' +
+                problemName + ': grading...');
+            model.submitProblem(username, problemName, language, submission,
+                function(error, output) {
+                    if (error){
+                        console.log('Error with submission: ' + output);
+                    }
+                    model.showMessage(username, 'Problem ' +
+                        problemName + ': ' + output);
+                });
+        }
+    });
 
     res.json({'err': false});
 });
