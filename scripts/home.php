@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         firebaseRef.child('users/<?php echo $kerberos ?>').on('value', function(userSnapshot) {
             var wing = userSnapshot.child('wing').val();
-            firebaseRef.child('wings/' + wing).on('value', function(wingSnapshot) {
+            firebaseRef.child('wings/' + wing).once('value', function(wingSnapshot) {
                 var solvedProblems = {};
                 if (wingSnapshot.hasChild('solved')) {
                     solvedProblems = wingSnapshot.child('solved').val();
@@ -163,7 +163,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
          .sidebar {
              position: fixed;
              top: 50px;
-             font-size:15px;
+             font-size:13px;
+             overflow: scroll;
          }
          .container {
              margin-left: 250px;
