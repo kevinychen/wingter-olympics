@@ -5,11 +5,11 @@ const SECRET_TOKEN = 'i5QbfhtaYBIKR3bZ68pZwSfXlu4V8X3Tj1xnn3dH';
 // testing
 //const SECRET_TOKEN = 'ah7RRQdV38GDyeZR6dth4nTI7c4EqSGpozy9OfWX';
 
-const INITIAL_SCORE = 100;
-const NORMAL_WEIGHT = 10;
-const ADVANCED_WEIGHT = 20;
-const DECAY_CONSTANT = 1.0;
-const SUBMISSION_WAIT_TIME = 30000;  // min ms between submissions
+const INITIAL_SCORE = 200;
+const NORMAL_WEIGHT = 30;
+const ADVANCED_WEIGHT = 100;
+const DECAY_CONSTANT = 60.0;
+const SUBMISSION_WAIT_TIME = 10000;  // min ms between submissions
 
 // prod
 var firebaseRef = new Firebase('https://wingter-olympics.firebaseIO.com');
@@ -188,8 +188,6 @@ function setLevel(userName, problemLevel, callback) {
         if (!userLevel) {
             levelData.ref().set(problemLevel);
             callback(false);
-        } else if (userLevel !== problemLevel) {
-            callback('Sorry, this problem is level: ' + problemLevel + '. Your bracket is: ' + userLevel + '.');
         } else {
             callback(false);
         }

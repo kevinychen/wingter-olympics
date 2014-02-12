@@ -4,7 +4,7 @@ var firebase = require('./firebase');
 
 
 const SUBMISSION_DIRECTORY = 'submissions/'
-const TIME_INTERVAL = 1000
+const TIME_INTERVAL = 60000
 
 
 if (!fs.existsSync(SUBMISSION_DIRECTORY)) {
@@ -25,7 +25,7 @@ function timeDecay() {
     });
 }
 
-setInterval(timeDecay, TIME_INTERVAL);
+//setInterval(timeDecay, TIME_INTERVAL);
 
 function register(username, wing, level, callback) {
     firebase.addUser(username, wing, level, callback);

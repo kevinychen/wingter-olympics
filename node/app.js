@@ -51,6 +51,11 @@ app.post('/submit', function(req, res) {
                     if (error){
                         console.log('Error with submission: ' + output);
                     }
+                    console.log(error);
+                    console.log('OUTPUT: ' + output);
+                    if (error && output && output.toString().indexOf('Command failed:') >= 0) {
+                        output = 'Compile time or runtime error; did you choose the right language?';
+                    }
                     model.showMessage(username, 'Problem ' +
                         problemName + ': ' + output);
                 });
